@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  bot:
+    build: .
+    environment:
+      - API_TOKEN=${API_TOKEN}
+      - ADMIN_IDS=${ADMIN_IDS}
+    volumes:
+      - ./:/app
+    restart: unless-stopped
