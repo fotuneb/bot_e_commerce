@@ -20,9 +20,8 @@ async def show_cart(message: Message):
             if prod:
                 lines.append(f"{prod['name']} x{qty} — {prod['price'] * int(qty)}")
         total = await db.cart_total(message.from_user.id)
-        kb = InlineKeyboardMarkup(row_width=2)
-        kb.add(InlineKeyboardButton(text='Оформить заказ', callback_data='order:start'))
-        kb.add(InlineKeyboardButton(text='Очистить корзину', callback_data='cart:clear'))
+        rows = [[InlineKeyboardButton(text='Оформить заказ', callback_data='order:start'), InlineKeyboardButton(text='Очистить корзину', callback_data='cart:clear')]]
+        kb = InlineKeyboardMarkup(inline_keyboard=rows)
         await message.answer('\n'.join(lines) + f"\n\nИтого: {total}", reply_markup=kb)
     except Exception:
         logger = __import__('logging').getLogger('handlers.cart')
@@ -31,9 +30,11 @@ async def show_cart(message: Message):
 
 
 
-@router.callback_query()
+@router.callback_query(lambda q: any((q.data or '').startswith(p) for p in ('cart:', 'inc:', 'dec:', 'remove:')))
 async def cart_cb(query: CallbackQuery):
     data = query.data or ''
+    # Debug print
+    print(f'cart_cb CALLBACK RECEIVED: data={data} from={getattr(query.from_user, "id", None)}')
     db = DB()
     if data == 'cart:clear':
         await db.clear_cart(query.from_user.id)

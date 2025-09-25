@@ -1,3 +1,4 @@
+import logging
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
@@ -25,10 +26,14 @@ async def show_categories(message: Message):
         await message.answer('Произошла ошибка при получении категорий. Попробуйте позже.')
 
 
-@router.callback_query()
+@router.callback_query(lambda q: (q.data or '').startswith('cat:'))
 async def category_cb(query: CallbackQuery):
     try:
         data = query.data or ''
+        # Direct print to ensure visibility in container logs for debugging
+        print(f'category_cb CALLBACK RECEIVED: data={data} from={getattr(query.from_user, "id", None)}')
+        logger = logging.getLogger('handlers.catalog')
+        logger.info('category_cb callback received: %s from %s', data, query.from_user.id)
         if not data.startswith('cat:'):
             return
         cid = int(data.split(':', 1)[1])
@@ -50,10 +55,14 @@ async def category_cb(query: CallbackQuery):
         await query.answer('Ошибка при получении товаров', show_alert=True)
 
 
-@router.callback_query()
+@router.callback_query(lambda q: (q.data or '').startswith('prod:'))
 async def product_cb(query: CallbackQuery):
     data = query.data or ''
     try:
+        # Direct print for debugging
+        print(f'product_cb CALLBACK RECEIVED: data={data} from={getattr(query.from_user, "id", None)}')
+        logger = logging.getLogger('handlers.catalog')
+        logger.info('product_cb callback received: %s from %s', data, query.from_user.id)
         if data.startswith('prod:'):
             pid = int(data.split(':', 1)[1])
             db = DB()
@@ -71,10 +80,14 @@ async def product_cb(query: CallbackQuery):
         await query.answer('Ошибка при получении товара', show_alert=True)
 
 
-@router.callback_query()
+@router.callback_query(lambda q: (q.data or '').startswith('add:'))
 async def add_to_cart_cb(query: CallbackQuery):
     data = query.data or ''
     try:
+        # Direct print for debugging
+        print(f'add_to_cart_cb CALLBACK RECEIVED: data={data} from={getattr(query.from_user, "id", None)}')
+        logger = logging.getLogger('handlers.catalog')
+        logger.info('add_to_cart_cb callback received: %s from %s', data, query.from_user.id)
         if data.startswith('add:'):
             pid = int(data.split(':', 1)[1])
             db = DB()
