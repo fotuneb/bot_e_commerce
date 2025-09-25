@@ -212,5 +212,3 @@ docker run -e API_TOKEN="<your_token>" -e ADMIN_IDS="1" telegram-shop-bot
 
 ---
 
-README был расширен: добавлены подробные инструкции запуска, схема БД, примеры команд и заметки по продакшену.
-
