@@ -14,9 +14,10 @@ async def show_categories(message: Message):
         if not cats:
             await message.answer('Категории пусты.')
             return
-        kb = InlineKeyboardMarkup(row_width=1)
+        rows = []
         for c in cats:
-            kb.add(InlineKeyboardButton(text=c['name'], callback_data=f'cat:{c["id"]}'))
+            rows.append([InlineKeyboardButton(text=c['name'], callback_data=f'cat:{c["id"]}')])
+        kb = InlineKeyboardMarkup(inline_keyboard=rows)
         await message.answer('Выберите категорию:', reply_markup=kb)
     except Exception:
         logger = __import__('logging').getLogger('handlers.catalog')
@@ -37,9 +38,10 @@ async def category_cb(query: CallbackQuery):
             await query.message.answer('Нет товаров в категории')
             await query.answer()
             return
-        kb = InlineKeyboardMarkup(row_width=1)
+        rows = []
         for p in products:
-            kb.add(InlineKeyboardButton(text=f"{p['name']} — {p['price']}", callback_data=f'prod:{p["id"]}'))
+            rows.append([InlineKeyboardButton(text=f"{p['name']} — {p['price']}", callback_data=f'prod:{p["id"]}')])
+        kb = InlineKeyboardMarkup(inline_keyboard=rows)
         await query.message.answer('Товары:', reply_markup=kb)
         await query.answer()
     except Exception:
@@ -59,9 +61,7 @@ async def product_cb(query: CallbackQuery):
             if not p:
                 await query.answer('Товар не найден', show_alert=True)
                 return
-            kb = InlineKeyboardMarkup(row_width=2)
-            kb.add(InlineKeyboardButton(text='В корзину', callback_data=f'add:{pid}'))
-            kb.add(InlineKeyboardButton(text='Назад', callback_data=f'back_cat:{p["category_id"]}'))
+            kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='В корзину', callback_data=f'add:{pid}'), InlineKeyboardButton(text='Назад', callback_data=f'back_cat:{p["category_id"]}')]])
             txt = f"{p['name']}\n{p.get('description','')}\nЦена: {p['price']}"
             await query.message.answer(txt, reply_markup=kb)
             await query.answer()

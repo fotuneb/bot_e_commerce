@@ -5,7 +5,10 @@ from typing import List, Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = 'bot_store.db'
+import os
+
+# Allow overriding DB path via environment (useful for Docker)
+DB_PATH = os.getenv('DB_PATH', 'bot_store.db')
 
 CREATE_SQL = [
     """

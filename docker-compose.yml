@@ -2,9 +2,14 @@ version: '3.8'
 services:
   bot:
     build: .
+    env_file:
+      - .env
     environment:
       - API_TOKEN=${API_TOKEN}
       - ADMIN_IDS=${ADMIN_IDS}
+      - DB_PATH=/data/bot_store.db
     volumes:
       - ./:/app
+      - ./data:/data
+    command: sh -c "python -m scripts.seed_db || true && python -m src.main"
     restart: unless-stopped
